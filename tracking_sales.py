@@ -19,7 +19,7 @@ class ExcelFileHandler(FileSystemEventHandler):
         # Check if the added file is an Excel file
         if not event.is_directory and event.src_path.endswith(('.xls', '.xlsx')):
             
-            print(f"New Excel file detected: {event.src_path}")
+            print(f"New Sales file detected: {event.src_path}")
             datetime.today()
             file_path = event.src_path
             print(file_path)
@@ -40,7 +40,7 @@ class ExcelFileHandler(FileSystemEventHandler):
             try:
                 df_copr23.columns = ['sales_date', 'ct_date', 'sales_code', 'factory_code',
                     'factory_name', 'salesman', 'product_code', 'product_name', 'qc', 'warehouse_code', 'sales_quantity',
-                    'package_sales_quantity', 'order_code', 'import_code', 'note', 'factory_order_code']
+                    'order_code', 'import_code', 'note', 'factory_order_code']
             except:
                 print("Number of columns does not match!")
             else:
@@ -48,7 +48,7 @@ class ExcelFileHandler(FileSystemEventHandler):
 
 
                 # Convert date cols to yyyy-mm-dd (ISO 8601 standard)
-                df_copr23_date_cols = ['sales_date']
+                df_copr23_date_cols = ['sales_date','ct_date']
                 for col in df_copr23_date_cols:
                     df_copr23[col] = pd.to_datetime(df_copr23[col], dayfirst=True)
 
@@ -177,7 +177,7 @@ class ExcelFileHandler(FileSystemEventHandler):
                 print("Successfully inserted rows:", df_successful_inserts.shape)
                 print("Rows with conflicts:", conflict_df.shape)
                 time.sleep(5)
-                shutil.move(file_path, r"Y:\06. 專案\VL1251\KHO\GIAOHANG\dữ liệu cũ")
+                shutil.move(file_path, r"Z:\公怖欄.2023\06. 專案\VL1251\KHO\GIAOHANG\dữ liệu cũ")
                 print("File moved to old folder")
                 time.sleep(5)
                 
@@ -236,7 +236,7 @@ class ExcelFileHandler(FileSystemEventHandler):
 
                 df_copr23.dropna(subset='qc', inplace=True)
 
-                df_copr23 = df_copr23[df_copr23['sales_date']>='2024-01-01']
+
 
 
                 df_copr23 = df_copr23.replace(np.nan, None)
@@ -244,7 +244,22 @@ class ExcelFileHandler(FileSystemEventHandler):
                     df_copr23[col] = df_copr23[col].astype(object).where(df_copr23[col].notnull(), None)
 
                 df_copr23.drop(columns=['first_4_sales_code'], inplace=True)
+                
+                df_KDT = df_copr23[df_copr23['factory_code']=='30895.2'][['sales_code','factory_code','factory_order_code']]
+                df_KDT.fillna("temp", inplace=True)
 
+                df_KDT.loc[df_KDT['factory_order_code'].str.contains('ST', case=False, na=False), 'factory_code'] = "30895.1"
+                df_KDT.loc[df_KDT['factory_order_code'].str.contains('TN', case=False, na=False), 'factory_code'] = "30895"
+                df_KDT.loc[df_KDT['factory_order_code'].str.contains('BP', case=False, na=False), 'factory_code'] = "30895.5"
+                df_KDT.loc[df_KDT['factory_order_code'].str.contains('QT', case=False, na=False), 'factory_code'] = "30895.4"
+
+                df_KDT.columns = ['sales_code','factory_code_fixed','factory_order_code']
+
+                df_copr23 = df_copr23.merge(df_KDT[['sales_code','factory_code_fixed']], on='sales_code', how='left')
+                # Replace values in df1's column with df2's column
+                df_copr23['factory_code'] = df_copr23['factory_code_fixed'].combine_first(df_copr23['factory_code'])
+                df_copr23.drop(columns=['factory_code_fixed'], inplace=True)
+                
                 df_copr23['import_wh_timestamp'] = datetime.now()
                 df_copr23.shape
 
@@ -263,7 +278,7 @@ class ExcelFileHandler(FileSystemEventHandler):
             
 
 if __name__ == "__main__":
-    folder_to_monitor = r"Y:\06. 專案\VL1251\KHO\GIAOHANG" # Replace with your folder path
+    folder_to_monitor = r"Z:\公怖欄.2023\06. 專案\VL1251\KHO\GIAOHANG" # Replace with your folder path
 
     event_handler = ExcelFileHandler()
     observer = Observer()

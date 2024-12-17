@@ -34,30 +34,13 @@ class ExcelFileHandler(FileSystemEventHandler):
             cur = conn.cursor()
             ###################################################################################
             ###################################################################################
+            
             df_copr13 = pd.read_excel(file_path)
             try:
-                df_copr13.columns = ['order_date','order_code','ct_date','factory_code','factory_name',
-                                    'factory_order_code','currency','exchange_rate','tax_type',
-                                    'channel','type','area','nation','path','path_2','department',
-                                    'salesman','export_factory', 'register_price', 'note', 'deposit',
-                                    'deposit_rate', 'payment_registration_code', 'payment_registration_name',
-                                    'register_transaction','delivery_address', 'delivery_address_2',
-                                    'volumn_unit', 'money_order','tax', 'total_quantity', 'gw',
-                                    'total_volumn', 'total_package','numerical_order',
-                                    'product_code', 'product_name', 'qc', 'factory_product_code', 
-                                    'warehouse_type', 'predict_code','factory_product_name', 
-                                    'factory_qc', 'order_quantity', 'delivered_quantity',
-                                    'package_order_quantity', 'delivered_package_order_quantity', 
-                                    'gift_quantity','delivered_gift_quantity', 'package_gift_quantity',
-                                    'delivered_package_gift_quantity', 'reserve_quantity',
-                                    'delivered_reserve_quantity', 'package_reserve_quantity',
-                                    'delivered_package_reserve_quantity', 'temporary_export_quantity',
-                                    'package_temporary_export_quantity', 'unit', 'small_unit',
-                                    'package_unit', 'price', 'money', 'priced_quantity',
-                                    'estimated_delivery_date', 'original_estimated_delivery_date',
-                                    'priced_unit', 'pre_ct', 'note_1', 'finish_code', 'package_pt',
-                                    'package_name', 'weight_with_package', 'volumn_with_package',
-                                    'project_code','project_name']
+                df_copr13.columns = ['order_date','ct_date','original_estimated_delivery_date','estimated_delivery_date',
+                                     'order_code','factory_code','factory_name','product_code',
+                                     'product_name','qc','order_quantity','delivered_quantity',
+                                     'factory_order_code','note','numerical_order','path','warehouse_type']
             except:
                 print("Number of columns does not match!")
             else:
@@ -82,6 +65,37 @@ class ExcelFileHandler(FileSystemEventHandler):
 
                 df_copr13.shape
 
+                copr13_columns = ['order_date','order_code','ct_date','factory_code','factory_name',
+                                'factory_order_code','currency','exchange_rate','tax_type',
+                                'channel','type','area','nation','path','path_2','department',
+                                'salesman','export_factory','register_price','note','deposit',
+                                'deposit_rate','payment_registration_code',
+                                'payment_registration_name','register_transaction','delivery_address',
+                                'delivery_address_2','volumn_unit','money_order','tax',
+                                'total_quantity','gw','total_volumn','total_package',
+                                'numerical_order','product_code','product_name','qc',
+                                'factory_product_code','warehouse_type','predict_code',
+                                'factory_product_name','factory_qc','order_quantity',
+                                'delivered_quantity','package_order_quantity',
+                                'delivered_package_order_quantity','gift_quantity',
+                                'delivered_gift_quantity','package_gift_quantity',
+                                'delivered_package_gift_quantity','reserve_quantity',
+                                'delivered_reserve_quantity','package_reserve_quantity',
+                                'delivered_package_reserve_quantity','temporary_export_quantity',
+                                'package_temporary_export_quantity','unit','small_unit',
+                                'package_unit','price','money','priced_quantity',
+                                'estimated_delivery_date','original_estimated_delivery_date',
+                                'priced_unit','pre_ct','note_1','finish_code','package_pt',
+                                'package_name','weight_with_package','volumn_with_package',
+                                'project_code','project_name','import_timestamp']
+
+                df_copr13.shape
+                for col in copr13_columns:
+                    if col not in df_copr13.columns:
+                        df_copr13[col] = None
+
+                df_copr13 = df_copr13[copr13_columns]
+                
 
                 successful_inserts = []
                 conflict_rows = []
@@ -150,7 +164,7 @@ class ExcelFileHandler(FileSystemEventHandler):
                 print("Successfully inserted rows:", df_successful_inserts.shape)
                 print("Rows with conflicts:", conflict_df.shape)
                 time.sleep(5)
-                shutil.move(file_path, r"Y:\06. 專案\VL1251\KHO\ĐĐH\dữ liệu cũ")
+                shutil.move(file_path, r"Z:\公怖欄.2023\06. 專案\VL1251\KHO\ĐĐH\dữ liệu cũ")
                 print("File moved to old folder")
                 time.sleep(5)
                 
@@ -185,18 +199,13 @@ class ExcelFileHandler(FileSystemEventHandler):
 
                 # Extract
                 cur.execute("""SELECT order_date, order_code, ct_date, factory_code, factory_order_code,
-                                    tax_type, department, salesman,
-                                    deposit_rate, payment_registration_code, payment_registration_name,
-                                    delivery_address,
-                                    product_code, product_name, qc, 
-                                    warehouse_type, order_quantity, delivered_quantity,
-                                    package_order_quantity, delivered_package_order_quantity,
-                                    unit, package_unit,
-                                    estimated_delivery_date, original_estimated_delivery_date,
-                                    pre_ct, finish_code, import_timestamp
-                                FROM copr13
-                                WHERE import_timestamp > %(latest_import)s
-                                    """,{'latest_import':latest_import})
+                            tax_type, department, salesman, deposit_rate, payment_registration_code, payment_registration_name,
+                            delivery_address, product_code, product_name, qc, warehouse_type, order_quantity, delivered_quantity,
+                            package_order_quantity, delivered_package_order_quantity, unit, package_unit, estimated_delivery_date,
+                            original_estimated_delivery_date, pre_ct, finish_code, import_timestamp
+                            FROM copr13
+                            WHERE import_timestamp > %(latest_import)s
+                                """,{'latest_import':latest_import})
 
                 data = cur.fetchall()
                 column_names = [description[0] for description in cur.description]
@@ -212,10 +221,6 @@ class ExcelFileHandler(FileSystemEventHandler):
                 df_copr13['first_4_order_code'] = df_copr13['order_code'].str.split("-").str[0]
                 df_copr13 = df_copr13[df_copr13['first_4_order_code']=='2201']
 
-                tax_type_mapping = {'Thu? c?ng rieng':'Thuế cộng riêng',
-                                    'Thu? su?t b?ng 0': 'Thuế suất bằng 0',
-                                    'Bao g?m thu?': 'Bao gồm thuế'}
-                df_copr13['tax_type'] = df_copr13['tax_type'].map(tax_type_mapping)
 
                 df_copr13.dropna(subset='qc', inplace=True)
                 df_copr13['factory_code'] = df_copr13['factory_code'].str.replace(r'.0','', regex=False)
@@ -261,7 +266,7 @@ class ExcelFileHandler(FileSystemEventHandler):
             
 
 if __name__ == "__main__":
-    folder_to_monitor = r"Y:\06. 專案\VL1251\KHO\ĐĐH" # Replace with your folder path
+    folder_to_monitor = r"Z:\公怖欄.2023\06. 專案\VL1251\KHO\ĐĐH" # Replace with your folder path
 
     event_handler = ExcelFileHandler()
     observer = Observer()
