@@ -177,7 +177,7 @@ class ExcelFileHandler(FileSystemEventHandler):
                 print("Successfully inserted rows:", df_successful_inserts.shape)
                 print("Rows with conflicts:", conflict_df.shape)
                 time.sleep(5)
-                shutil.move(file_path, r"Z:\公怖欄.2023\06. 專案\VL1251\KHO\GIAOHANG\dữ liệu cũ")
+                shutil.move(file_path, r"D:\VL1251\ETL\old_data\wh\sales")
                 print("File moved to old folder")
                 time.sleep(5)
                 
@@ -278,7 +278,7 @@ class ExcelFileHandler(FileSystemEventHandler):
             
 
 if __name__ == "__main__":
-    folder_to_monitor = r"Z:\公怖欄.2023\06. 專案\VL1251\KHO\GIAOHANG" # Replace with your folder path
+    folder_to_monitor = r"D:\VL1251\dashboard\data\wh\sales" # Replace with your folder path
 
     event_handler = ExcelFileHandler()
     observer = Observer()
