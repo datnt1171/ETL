@@ -154,3 +154,4 @@ cython_debug/
 # Personal
 order_daily/
 sales_daily/
+old_data/

@@ -22,6 +22,7 @@ class ExcelFileHandler(FileSystemEventHandler):
             print(datetime.today())
             file_path = event.src_path
             print(file_path)
+            file_name = os.path.basename(file_path)
             print(type(file_path))
             database_name = os.getenv('STAGING_NAME')
             database_user = os.getenv('STAGING_USER')
@@ -164,7 +165,8 @@ class ExcelFileHandler(FileSystemEventHandler):
                 print("Successfully inserted rows:", df_successful_inserts.shape)
                 print("Rows with conflicts:", conflict_df.shape)
                 time.sleep(5)
-                shutil.move(file_path, r"D:\VL1251\ETL\old_data\wh\order")
+                des_folder = r"D:\VL1251\ETL\old_data\wh\order"
+                shutil.move(file_path, os.path.join(des_folder, file_name))
                 print("File moved to old folder")
                 time.sleep(5)
                 
