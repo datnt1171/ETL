@@ -24,7 +24,7 @@ column_names = [description[0] for description in cur.description]
 df_factory = pd.DataFrame(data = data, columns = column_names)
 
 df_factory.drop_duplicates(subset='factory_code', inplace=True)
-
+df_factory['factory_code'] = df_factory['factory_code'].str.replace(r'.0','', regex=False)
 # Connect to Warehouse
 database_name = os.getenv('WAREHOUSE_NAME')
 database_user = os.getenv('WAREHOUSE_USER')

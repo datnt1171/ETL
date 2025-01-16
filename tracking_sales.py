@@ -168,12 +168,7 @@ class ExcelFileHandler(FileSystemEventHandler):
                 # Convert conflict rows to DataFrame
                 conflict_df = pd.DataFrame(conflict_rows)
                 df_successful_inserts = pd.DataFrame(successful_inserts)
-                # Output results
-                print("Successfully inserted rows:", df_successful_inserts.shape)
-                print("Rows with conflicts:", conflict_df.shape)
-                    
-                    
-                
+
                 # Output results
                 print("Successfully inserted rows:", df_successful_inserts.shape)
                 print("Rows with conflicts:", conflict_df.shape)
