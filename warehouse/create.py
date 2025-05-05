@@ -190,4 +190,3 @@ cur.execute("""CREATE TABLE revenue_by_month(
                 revenue_predict float
                 )""")
 
-df_revenue = pd.read_excel(r'')

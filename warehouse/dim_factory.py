@@ -45,8 +45,21 @@ DO UPDATE SET
 """
 
 # Execute the upsert for each row in data
-for _, row in df_factory.iterrows():  # Iterate over rows as (index, Series)
+for _, row in df_factory.iterrows():  
     cur.execute(upsert_query, (row["factory_code"], row["factory_name"]))
 
 # Commit changes
 conn.commit()
+
+df_revenue = pd.read_excel(r"D:\VL1251\A Dũng\revenue.xlsx")
+insert_query = """
+INSERT INTO revenue_by_month (factory_code, year,
+                month,
+                revenue,
+                revenue_predict)
+VALUES (%s, %s, %s, %s, %s);
+"""
+df_revenue['factory_code'] = df_revenue['factory_code'].astype(str)
+df_revenue['factory_code'] = df_revenue['factory_code'].str.replace(r'.0','', regex=False)
+for _, row in df_revenue.iterrows():  
+    cur.execute(insert_query, (row["factory_code"], row["year"], row["month"], row["revenue"], row["Predict"]))
