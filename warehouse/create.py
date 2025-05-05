@@ -178,3 +178,16 @@ conn.commit()
 # Fact ######################################################################
 # Fact ######################################################################
 conn.close()
+
+
+# Aggregate table
+cur.execute("""DROP TABLE revenue_by_month""")
+cur.execute("""CREATE TABLE revenue_by_month(
+                factory_code TEXT,
+                year INT,
+                month INT,
+                revenue float,
+                revenue_predict float
+                )""")
+
+df_revenue = pd.read_excel(r'')
