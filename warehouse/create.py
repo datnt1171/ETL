@@ -187,6 +187,7 @@ cur.execute("""CREATE TABLE revenue_by_month(
                 year INT,
                 month INT,
                 revenue float,
-                revenue_predict float
+                revenue_predict float,
+                salesman text
                 )""")
 
